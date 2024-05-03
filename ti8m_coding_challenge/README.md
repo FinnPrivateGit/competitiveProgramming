@@ -1,0 +1,1 @@
+This is a folder to save my solutions for the 2024 ti8m coding challenges, I started in week 3.
