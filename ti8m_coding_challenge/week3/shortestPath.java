@@ -47,7 +47,63 @@ public class ShortestPath {
     }
 
     public static void task2() {
-        //TODO: second task
+        //TODO: input
+        Map<Integer, List<Pair<Integer, Integer>>> graph = new HashMap<>();
+
+        try (Scanner scanner = new Scanner(new File("graph2.txt"))) {
+            while (scanner.hasNextLine()) {
+                String[] parts = scanner.nextLine().split(" ");
+                int node1 = Integer.parseInt(parts[0]);
+                int node2 = Integer.parseInt(parts[1]);
+                int edgeWeight = Integer.parseInt(parts[2]);
+
+                graph.putIfAbsent(node1, new ArrayList<>());
+                graph.putIfAbsent(node2, new ArrayList<>());
+
+                graph.get(node1).add(new Pair<>(node2, edgeWeight));
+                graph.get(node2).add(new Pair<>(node1, edgeWeight));
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //TODO: algorithm
+        PriorityQueue<Pair<Integer, Integer>> queue = new PriorityQueue<>(Comparator.comparingInt(pair -> pair.second));
+
+        int[] dist = new int[graph.size() + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+
+        dist[1] = 0;
+
+        queue.add(new Pair<>(1, 0));
+
+        while (!queue.isEmpty()) {
+            Pair<Integer, Integer> pair = queue.poll();
+            int node = pair.first;
+            int distance = pair.second;
+
+            if (distance > dist[node]) continue;
+
+            for (Pair<Integer, Integer> edge : graph.get(node)) {
+                int neighbor = edge.first;
+                int weight = edge.second;
+
+                if (dist[node] + weight < dist[neighbor]) {
+                    dist[neighbor] = dist[node] + weight;
+                    queue.add(new Pair<>(neighbor, dist[neighbor]));
+                }
+            }
+        }
+
+        //find longest shortest path
+        int maxNode = 1;
+        for (int i = 2; i <= graph.size(); i++) {
+            if (dist[i] > dist[maxNode]) {
+                maxNode = i;
+            }
+        }
+
+        System.out.println("The longest shortest path is to node " + maxNode + " with length " + dist[maxNode]);
     }
 
     public static int dijkstra(Map<Integer, Map<Integer, Integer>> graph, int start, int end) {
@@ -95,6 +151,16 @@ public class ShortestPath {
             Collections.reverse(path);
             System.out.println("Path from node " + start + " to node " + end + ": " + path);
             return distances.get(end);
+        }
+    }
+
+    static class Pair<K, V> {
+        K first;
+        V second;
+
+        Pair(K first, V second) {
+            this.first = first;
+            this.second = second;
         }
     }
 }
